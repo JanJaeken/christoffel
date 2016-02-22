@@ -1,0 +1,197 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2016 Jan Jaeken <jan.jaeken@ugent.be>                   #
+#                                                                       #
+# This file is part of Christoffel.                                     #
+#                                                                       #
+# Christoffel is free software: you can redistribute it and/or modify   #
+# it under the terms of the GNU General Public License as published by  #
+# the Free Software Foundation, either version 3 of the License, or     #
+# (at your option) any later version.                                   #
+#                                                                       #
+# Christoffel is distributed in the hope that it will be useful,        #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of        #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         #
+# GNU General Public License for more details.                          #
+#                                                                       #
+# You should have received a copy of the GNU General Public License     #
+# along with Christoffel.  If not, see <http://www.gnu.org/licenses/>.  #
+#                                                                       #
+#########################################################################
+
+
+This package contains Christoffel, a Python module for calculating wave
+velocities from elastic properties. This README is structured as follows:
+
+1) General description
+2) Package content
+3) How to use Christoffel
+    3.1) Input
+    3.2) Execution
+    3.3) Output
+    3.4) Visualization
+4) Example
+
+
+1) General description
+
+This software is designed to determine direction-dependent acoustic phase and
+group velocities by solving the Christoffel equation. For detailed information
+on the inner workings of the software, we refer to the accompanying paper in 
+Computer Physics Communications.
+
+
+2) Package content
+
+README         -- This file. You are reading it right now.
+christoffel.py -- Python module containing all the objects, functions and
+                  mathematical machinery required. Toolbox.
+__init__.py    -- Empty file, makes the christoffel module importable.
+scansurface.py -- Script for sampling wave directions in a material, it outputs
+                  phase velocities, group velocities and enhancement factors.
+sound.in       -- Example input file for the scansurface script.
+*.gnu files    -- Gnuplot scripts to automatically plot the output of the
+                  scansurface script.
+
+
+3) How to use Christoffel
+
+Users are highly encouraged to take a peek into the christoffel.py module and
+write their own implementations by using the module as a toolbox.
+
+For those who do not wish to tinker much, the scansurface script and sound.in
+should provide adequate functionality at the press of a button.
+
+3.1) Input
+
+All that is required to determine the elastic wave velocities is a material's
+stiffness tensor and density. These can be entered in the sound.in file.
+
+The sound.in file should minimally contain three things:
+
+a) A '[SCAN]' tag in the first non-commented line to identify the file.
+[SCAN]
+
+b) The density of the material in kg/m^3.
+Density = xxxx.x
+
+c) The stiffness tensor of the material in GPa, don't forget the indentation.
+Stiffness =
+  C11 C12 C13 C14 C15 C16
+  C12 C22 C23 C24 C25 C26
+  C13 C23 C33 C34 C35 C36
+  C14 C24 C34 C44 C45 C46
+  C15 C25 C35 C45 C55 C56
+  C16 C26 C36 C46 C56 C66
+
+It can further contain these optional tags:
+
+d) Definition of the grid to loop over.
+Numtheta = int
+Numphi = int  -- These define a rectangular grid in spherical coordinates on
+                 the z>0 hemisphere of all possible wave directions. Numtheta
+                 is the number of different values taken for the polar angle
+                 (0<=theta<pi/2) while Numphi is the number of different
+                 values for the azimutal angle (0<=phi<2pi). We suggest setting
+                 Numphi equal to 4*Numtheta, though you are of course free to
+                 choose these values as you please.
+
+e) Definition of a new z-direction.
+zdir = x y z  -- This will rotate the stiffness tensor so the new z-direction
+                 will be the one specified. This does not need to be explicitly
+                 normalized.
+
+f) Definition of a new x-direction.
+xdir = x y z  -- This will rotate the stiffness tensor so the new x-direction
+                 will be the one specified. This does not need to be explicity
+                 normalized, nor be orthogonal to the defined zdir. However,
+                 the zdir tag takes precedence over xdir if it is specified,
+                 and the resulting basis will be orthonormalized accordingly.
+
+g) Directions to output data on. Don't forget the indentation.
+Directions =
+  x1 y1 z1
+  x2 y2 z2
+  x3 y3 z3
+  ...         -- These directions will be looped over and data will be written
+                 to directions.dat. Useful for studying only specific special
+                 directions, or to manually define a sampling mesh.
+
+
+3.2) Execution
+
+If the sound.in file is prepared appropriately, all that is necessary is to run
+
+> python scansurface.py
+
+in the appropriate directory. The directory should contain the sound.in file
+and the three .py files contained within this package.
+
+
+3.3) Output
+
+The scansurface script produces 5 output files.
+
+a) slow_secondary.dat, fast_secondary.dat, primary.dat
+    Acoustic information on the directions that have been looped over according
+    to the grid defined by the 'Numtheta' and 'Numphi' tags. Contains the data
+    on the slowest, intermediate and fastest acoustic mode respectively. All
+    three files have the same structure of 17 columns:
+
+    1 -------- Theta (rad)
+    2 -------- Phi (rad)
+    3,4,5 ---- Projection on the unit cube (cartesian)
+    6 -------- Phase velocity (km/s)
+    7 -------- Phase velocity relative to isotropic velocity (%)
+    8,9,10 --- Phase polarization (unit vector, dimensionless)
+    11 ------- Group velocity (km/s)
+    12 ------- Group velocity relative to isotropic velocity (%)
+    13,14,15 - Ray surface in cartesian coordinates (km/s)
+    16 ------- Power flow angle (angle between phase and group direction) (deg)
+    17 ------- Enhancement factor (dimensionless)
+
+b) anisotropy.dat
+    If a grid was defined, this file contains information about the maximal and
+    minimal velocities of the three acoustic modes, and in what directions they
+    occur. It also provides a measure of the total anisotropy of the material.
+
+c) directions.dat
+    This file contains sound velocity information about the directions
+    defined under the 'Directions' tag in the sound.in file. Can be empty.
+
+
+3.4) Visualization
+
+Gnuplot scripts are provided in the gnuplot subfolder to automatically plot
+the data in the slow_secondary.dat, fast_secondary.dat and primary.dat files
+generated by the scansurface script. A description of the naming scheme
+follows, though if you are impatient you can simply run them all with:
+
+> gnuplot ./gnuplot/*.gnu
+
+Be advised that this may take a few minutes to complete.
+
+The naming scheme of the scripts is as follows:
+
+phase ----- Phase velocity
+group ----- Group velocity (only absolute value)
+ray ------- Ray surface (group velocity with direction)
+pfangle --- Power flow angle
+enh ------- Enhancement factor
+pol ------- Polarization of phase velocities
+
+relative -- For phase and group: relative to the isotropic sound velocities
+
+sphere ---- Projection onto the unit sphere
+cube ------ Projection onto the unit cube
+eqar ------ Equal area projection onto the plane
+stereo ---- Stereographic projection onto the plane, locally preserves shape
+radius ---- Only for phase velocity, plots the data on a sphere with radius
+            scaled according to the absolute velocity
+
+
+4) Example
+
+The sound.in file included in this package contains the density and stiffness
+tensor of GaAs and can be used for a testrun.
+

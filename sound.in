@@ -1,0 +1,33 @@
+[SCAN]
+# Density in kg/m^3
+Density = 5307.0
+
+# Stiffness tensor in GPa, don't forget indentation!
+Stiffness =
+# This is the GaAs example
+  118.8   53.8   53.8    0.0    0.0    0.0
+   53.8  118.8   53.8    0.0    0.0    0.0
+   53.8   53.8  118.8    0.0    0.0    0.0
+    0.0    0.0    0.0   59.4    0.0    0.0
+    0.0    0.0    0.0    0.0   59.4    0.0
+    0.0    0.0    0.0    0.0    0.0   59.4
+
+# Grid for sampling, optimal results when numphi = 4*numtheta
+Numtheta = 180
+Numphi = 720
+
+# Optional redefinition of the x- and z-direction, for rotation of the stiffness tensor
+#zdir = 1 1 1
+#xdir = 1 0 -1
+
+# Special directions of interest. Information about these will be written to directions.dat
+# Don't forget the indentation.
+Directions =
+  1 0 0
+  0 1 0
+  0 0 1
+  1 1 0
+  0 1 1
+  1 0 1
+  1 1 1
+
