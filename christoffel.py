@@ -123,6 +123,7 @@ class Christoffel:
         q = self.direction
 
         x = q[0]
+        y = q[1]
         z = q[2]
         if z >= 1.0 or z <= -1.0:
             if z > 0.0:
@@ -137,6 +138,8 @@ class Christoffel:
             cos_phi = x/sin_theta
 
             self.phi = np.arccos(cos_phi)
+            if y < 0.0:
+                self.phi = 2.0*np.pi - self.phi
 
         self.christoffel = np.dot(q, np.dot(q, self.stiffness))
 
@@ -170,7 +173,6 @@ class Christoffel:
         """
         Generates a random wave vector direction.
         The distribution is uniform across the unit sphere.
-        Don't forget to seed the RNG.
         """
         self.clear_direction()
 
@@ -196,7 +198,7 @@ class Christoffel:
 
     def get_isotropic(self):
         """
-        Returns sound velocities as if the material were isotropic.
+        Returns sound velocities as if the material was isotropic.
         """
         return np.array([self.iso_S, self.iso_S, self.iso_P])
 
@@ -322,9 +324,12 @@ class Christoffel:
             self.set_hessian_eig()
         return self._hessian_eig
 
-    def get_enhancement(self):
+    def get_enhancement(self, approx=False, num_steps=8, delta=1e-5):
         if self._enhancement is None:
-            self.set_enhancement()
+            if approx is False:
+                self.set_enhancement()
+            else:
+                self.set_enhancement_approx(num_steps, delta)
         return self._enhancement
 
 
@@ -437,6 +442,46 @@ class Christoffel:
 
             enhance[n] = 1.0 / norm(np.dot(cofactor(grad_group[n]), self.direction))
         self._enhancement = enhance
+
+    def set_enhancement_approx(self, num_steps=8, delta=1e-5):
+        """
+        Determine the enhancement factors according to a numerical scheme.
+        The surface areas of a set of triangles in phase and group space are
+        calculated and divided. This is significantly slower and less accurate
+        than the analytical approach, but will provide a physically relevant
+        value when the enhancement factor is ill defined.
+
+        The surface area is a polygon of n sides where n is num_steps.
+        The radius of this polygon is determined by delta, which determines the
+        change in theta and phi coordinates relative to the central position.
+        """
+        phase_grid = np.empty((num_steps+1, 3))
+        group_grid = np.empty((num_steps+1, 3, 3))
+
+        center_theta = self.theta
+        center_phi = self.phi
+        phase_center = self.direction
+
+        for i in xrange(num_steps):
+            angle = i*2.0*np.pi/num_steps
+            self.set_direction_spherical(center_theta + np.sin(angle)*delta, center_phi + np.cos(angle)*delta)
+            phase_grid[i] = self.direction
+            group_grid[i] = self.get_group_dir()
+
+        phase_grid[num_steps] = phase_grid[0]
+        group_grid[num_steps] = group_grid[0]
+
+        self.set_direction_cartesian(phase_center)
+        group_center = self.get_group_dir()
+
+        phase_area = 0.0
+        group_area = np.zeros(3)
+        tot_angle = np.zeros(3)
+        for i in xrange(num_steps):
+            phase_area += norm(np.cross(phase_grid[i] - phase_center, phase_grid[i+1] - phase_center))
+            for n in xrange(3):
+                group_area[n] += norm(np.cross(group_grid[i][n] - group_center[n], group_grid[i+1][n] - group_center[n]))
+        self._enhancement = phase_area/group_area
 
     def find_nopowerflow(self, step_size=0.9, eig_id=2, max_iter=900):
         """
