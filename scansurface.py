@@ -62,9 +62,28 @@ except:
     num_theta = 0
     total_num_phi = 0
 
+print 'Data read and Christoffel object created.\n'
+
+#Dump the data that has been read
+statusfile = open('sound.out', 'w')
+
+statusfile.write('Density: {0:.2f} kg/m^3\n\n'.format(chris.density))
+statusfile.write('Stiffness tensor in GPa:\n')
+for i in xrange(6):
+    statusfile.write('{0:8.2f} {1:8.2f} {2:8.2f} {3:8.2f} {4:8.2f} {5:8.2f}\n'.format(*(chris.stiffness2D[i])))
+
 chris.rotate_tensor(x_dir=xdir, z_dir=zdir)
 
-print 'Data read and Christoffel object created.'
+statusfile.write('\nRotated stiffness tensor in GPa:\n')
+for i in xrange(6):
+    statusfile.write('{0:8.2f} {1:8.2f} {2:8.2f} {3:8.2f} {4:8.2f} {5:8.2f}\n'.format(*(chris.stiffness2D[i])))
+
+statusfile.write('\nBulk modulus: {0:.2f} GPa\n'.format(chris.bulk))
+statusfile.write('Shear modulus: {0:.2f} GPa\n'.format(chris.shear))
+statusfile.write('Isotropic primary velocity: {0:.2f} km/s\n'.format(chris.iso_P))
+statusfile.write('Isotropic secondary velocity: {0:.2f} km/s\n'.format(chris.iso_S))
+
+statusfile.close()
 
 #Prepare the output files
 SS_outfile = open('slow_secondary.dat', 'w')

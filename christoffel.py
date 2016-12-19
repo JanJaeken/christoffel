@@ -48,6 +48,7 @@ class Christoffel:
         self.iso_P, self.iso_S = isotropic_velocities(self.bulk, self.shear, density)
 
         stiffness = 0.5 * ( stiffness + stiffness.T)
+        self.stiffness2D = stiffness
         self.stiffness = np.array(de_voigt(stiffness))
         self.stiffness *= 1000.0/density
         self.density = density
@@ -110,6 +111,7 @@ class Christoffel:
         for i in xrange(4):
             self.stiffness = np.tensordot(rot, self.stiffness, (1, i))
 
+        self.stiffness2D = voigt(self.stiffness * self.density / 1000.0)
         self.hessian_mat = hessian_christoffelmat(self.stiffness)
 
     def set_direction_cartesian(self, direction):
@@ -511,6 +513,40 @@ class Christoffel:
             max_iter -= 1
             self.find_nopowerflow(step_size, eig_id, max_iter)
 
+
+def voigt(C_ijkl):
+    """Turn a 3x3x3x3 tensor to a 6x6 matrix according to Voigt notation."""
+    C_ij = np.zeros((6,6))
+
+    # Divide by 2 because symmetrization will double the main diagonal
+    C_ij[0,0] = 0.5*C_ijkl[0][0][0][0]
+    C_ij[1,1] = 0.5*C_ijkl[1][1][1][1]
+    C_ij[2,2] = 0.5*C_ijkl[2][2][2][2]
+    C_ij[3,3] = 0.5*C_ijkl[1][2][1][2]
+    C_ij[4,4] = 0.5*C_ijkl[0][2][0][2]
+    C_ij[5,5] = 0.5*C_ijkl[0][1][0][1]
+
+    C_ij[0,1] = C_ijkl[0][0][1][1]
+    C_ij[0,2] = C_ijkl[0][0][2][2]
+    C_ij[0,3] = C_ijkl[0][0][1][2]
+    C_ij[0,4] = C_ijkl[0][0][0][2]
+    C_ij[0,5] = C_ijkl[0][0][0][1]
+
+    C_ij[1,2] = C_ijkl[1][1][2][2]
+    C_ij[1,3] = C_ijkl[1][1][1][2]
+    C_ij[1,4] = C_ijkl[1][1][0][2]
+    C_ij[1,5] = C_ijkl[1][1][0][1]
+
+    C_ij[2,3] = C_ijkl[2][2][1][2]
+    C_ij[2,4] = C_ijkl[2][2][0][2]
+    C_ij[2,5] = C_ijkl[2][2][0][1]
+
+    C_ij[3,4] = C_ijkl[1][2][0][2]
+    C_ij[3,5] = C_ijkl[1][2][0][1]
+
+    C_ij[4,5] = C_ijkl[0][2][0][1]
+
+    return C_ij + C_ij.T
 
 def de_voigt(C_ij):
     """Turn a 6x6 matrix into a 3x3x3x3 tensor according to Voigt notation."""
