@@ -416,11 +416,19 @@ class Christoffel:
         eig_vec = self.get_eigenvec()
         gradmat = self.get_grad_mat()
         hess_mat = self.get_hessian_mat()
-       
+
+        diag = np.zeros((3,3))
         hessian = np.zeros((3, 3, 3))
         for n in xrange(3):
             hessian[n] += np.dot(np.dot(hess_mat, eig_vec[n]), eig_vec[n])
-            pseudoinv = np.linalg.pinv(eig_val[n]*idmat - dynmat, rcond=1e-10)
+            #pseudoinv = np.linalg.pinv(eig_val[n]*idmat - dynmat, rcond=1e-10)
+            for i in xrange(3):
+                x = eig_val[n] - eig_val[i]
+                if (abs(x) < 1e-10):
+                    diag[i][i] = 0.0
+                else:
+                    diag[i][i] = 1.0/x
+            pseudoinv = np.dot(np.dot(eig_vec.T, diag), eig_vec)
             deriv_vec = np.dot(gradmat, eig_vec[n])
             hessian[n] += 2.0 * np.dot(np.dot(deriv_vec, pseudoinv), deriv_vec.T)
             #Take deriv of eigenvec into account: 2 * (d/dx s_i) * pinv_ij * (d_dy s_j)
