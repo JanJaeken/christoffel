@@ -4,6 +4,9 @@ Copyright (C) 2016 Jan Jaeken <jan.jaeken@ugent.be>
 
 This file is part of Christoffel.
 
+"Solving the Christoffel equation: Phase and group velocities"
+Computer Physics Communications, 10.1016/j.cpc.2016.06.014
+
 Christoffel is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
