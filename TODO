@@ -1,6 +1,5 @@
 To do list for future releases (on a "when I get around to it" basis, in order of urgency)
 
-- Make the rotating of the stiffness tensor more user-available and user-configurable instead of tucking it away. It's useful.
 - Do some proper stability checking of the material.
 - Decouple the stability checking from the rest of the code, make it easy for the user to get to.
 - Visualize unstable strain modes
