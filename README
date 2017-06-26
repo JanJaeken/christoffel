@@ -130,7 +130,7 @@ and the three .py files contained within this package.
 
 3.3) Output
 
-The scansurface script produces 5 output files.
+The scansurface script produces 6 output files.
 
 a) slow_secondary.dat, fast_secondary.dat, primary.dat
     Acoustic information on the directions that have been looped over according
@@ -159,6 +159,10 @@ c) directions.dat
     This file contains sound velocity information about the directions
     defined under the 'Directions' tag in the sound.in file. Can be empty.
 
+d) sound.out
+    This file contains general information about the material of the last run,
+    including density, rotated and non-rotated stiffness tensor, bulk and shear
+    modulus and isotropic sound velocities.
 
 3.4) Visualization
 
