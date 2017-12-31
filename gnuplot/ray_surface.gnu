@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2016 Jan Jaeken <jan.jaeken@gmail.com>                   #
+# Copyright (C) 2016 Jan Jaeken <jan.jaeken@gmail.com>                  #
 #                                                                       #
 # This file is part of Christoffel.                                     #
 #                                                                       #
@@ -20,7 +20,7 @@
 #########################################################################
 
 reset
-set terminal png truecolor enhanced font Arial 22 size 2250,750
+set terminal png truecolor enhanced font 'Arial, 22' size 2250,750
 set output "ray_surface.png"
 
 set palette defined (-1 "blue", 0 "white", 1 "red")

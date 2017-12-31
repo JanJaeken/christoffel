@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2016 Jan Jaeken <jan.jaeken@gmail.com>                   #
+# Copyright (C) 2016 Jan Jaeken <jan.jaeken@gmail.com>                  #
 #                                                                       #
 # This file is part of Christoffel.                                     #
 #                                                                       #
@@ -32,7 +32,7 @@ P_max = ceil(GPVAL_DATA_Y_MAX);
 if (-S_min > S_max) S_max = -S_min;
 if (-P_min > P_max) P_max = -P_min;
 
-set terminal png truecolor enhanced font Arial 22 size 2250,750
+set terminal png truecolor enhanced font 'Arial, 22' size 2250,750
 set output "group_velocity_relative_eqar.png"
 
 set palette defined (-1 "blue", 0 "white", 1 "red")

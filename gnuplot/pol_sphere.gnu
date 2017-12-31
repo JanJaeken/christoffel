@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2016 Jan Jaeken <jan.jaeken@gmail.com>                   #
+# Copyright (C) 2016 Jan Jaeken <jan.jaeken@gmail.com>                  #
 #                                                                       #
 # This file is part of Christoffel.                                     #
 #                                                                       #
@@ -36,7 +36,7 @@ NUM_VALUES = GPVAL_DATA_X_MAX #This is a float!
 NUM_THETA = 0.5*sqrt(NUM_VALUES)
 SKIP = floor(NUM_THETA/12.0)
 
-set terminal png truecolor enhanced font Arial 22 size 2250,750
+set terminal png truecolor enhanced font 'Arial, 22' size 2250,750
 set output "phase_polarization.png"
 
 set palette defined (-1 "blue", 0 "white", 1 "red")
