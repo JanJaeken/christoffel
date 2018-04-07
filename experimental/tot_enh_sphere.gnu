@@ -1,0 +1,63 @@
+#########################################################################
+#                                                                       #
+# Copyright (C) 2016 Jan Jaeken <jan.jaeken@gmail.com>                  #
+#                                                                       #
+# This file is part of Christoffel.                                     #
+#                                                                       #
+# Christoffel is free software: you can redistribute it and/or modify   #
+# it under the terms of the GNU General Public License as published by  #
+# the Free Software Foundation, either version 3 of the License, or     #
+# (at your option) any later version.                                   #
+#                                                                       #
+# Christoffel is distributed in the hope that it will be useful,        #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of        #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         #
+# GNU General Public License for more details.                          #
+#                                                                       #
+# You should have received a copy of the GNU General Public License     #
+# along with Christoffel.  If not, see <http://www.gnu.org/licenses/>.  #
+#                                                                       #
+#########################################################################
+
+reset
+set terminal png truecolor enhanced font 'Arial, 40' size 3740, 1250
+set output "total_enhancement_factor_sphere.png"
+
+set palette defined (-1 "blue", 0 "white", 1 "red", 2 "black")
+set pm3d depthorder explicit
+set view equal xyz
+set xyplane 0
+unset border
+unset xtics
+unset ytics
+unset ztics
+
+set cblabel "log_{10}(A)"
+
+set view 60,120,1.3
+set arrow from first 0,0,1 to first 0,0,1.35 front
+set arrow from first 0,1,0 to first 0,1.4,0 front
+set arrow from first 1,0,0 to first 1.4,0,0 front
+
+set label 'X' at first 1.7,0,0 front 
+set label 'Y' at first 0.2,1.35,0 front
+set label 'Z' at first 0,0.07,1.3 front
+
+set multiplot layout 1,3
+#Manualy edit these ranges!
+set cbrange [-2.5:5]
+set title "Slow Secondary"
+splot "total_enhancement.dat" u (sin($1)*cos($2)):(sin($1)*sin($2)):(cos($1)):(log10($6)) w pm3d notitle, "total_enhancement.dat" u (-sin($1)*cos($2)):(-sin($1)*sin($2)):(-cos($1)):(log10($6)) w pm3d notitle;
+set title "Fast Secondary"
+splot "total_enhancement.dat" u (sin($1)*cos($2)):(sin($1)*sin($2)):(cos($1)):(log10($7)) w pm3d notitle, "total_enhancement.dat" u (-sin($1)*cos($2)):(-sin($1)*sin($2)):(-cos($1)):(log10($7)) w pm3d notitle;
+
+#Manually edit this range too!
+set cbrange[-0.6:1.2]
+set title "Primary"
+splot "total_enhancement.dat" u (sin($1)*cos($2)):(sin($1)*sin($2)):(cos($1)):(log10($8)) w pm3d notitle, "total_enhancement.dat" u (-sin($1)*cos($2)):(-sin($1)*sin($2)):(-cos($1)):(log10($8)) w pm3d notitle;
+
+unset multiplot
+unset output
+
+reset
+
