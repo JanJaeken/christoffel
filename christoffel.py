@@ -25,7 +25,7 @@ along with Christoffel.  If not, see <http://www.gnu.org/licenses/>.
 import numpy as np
 
 # Definition of Voigt notation
-VOIGT = {00: 0, 11: 1, 22: 2, 12: 3, 21: 3, 02: 4, 20: 4, 01: 5, 10: 5}
+VOIGT = {00: 0, 11: 1, 22: 2, 12: 3, 21: 3, 0o2: 4, 20: 4, 0o1: 5, 10: 5}
 idmat = np.identity(3)
 
 class Christoffel:
@@ -111,7 +111,7 @@ class Christoffel:
                 rot = np.array([x_dir, y_dir, z_dir])
         else:
             rot = rot_mat
-        for i in xrange(4):
+        for i in range(4):
             self.stiffness = np.tensordot(rot, self.stiffness, (1, i))
 
         self.stiffness2D = voigt(self.stiffness * self.density / 1000.0)
@@ -379,8 +379,8 @@ class Christoffel:
         self._group_dir = np.empty((3, 3))
         self.group_theta = np.empty(3)
         self.group_phi = np.empty(3)
-        for pol in xrange(3):
-            for cart in xrange(3):
+        for pol in range(3):
+            for cart in range(3):
                 grad_eig[pol][cart] = \
                 np.dot(eig_vec[pol], np.dot(gradmat[cart], eig_vec[pol]))
                 # Eigenvalues are the square of the velocity
@@ -422,10 +422,10 @@ class Christoffel:
 
         diag = np.zeros((3,3))
         hessian = np.zeros((3, 3, 3))
-        for n in xrange(3):
+        for n in range(3):
             hessian[n] += np.dot(np.dot(hess_mat, eig_vec[n]), eig_vec[n])
             #pseudoinv = np.linalg.pinv(eig_val[n]*idmat - dynmat, rcond=1e-10)
-            for i in xrange(3):
+            for i in range(3):
                 x = eig_val[n] - eig_val[i]
                 if (abs(x) < 1e-10):
                     diag[i][i] = 0.0
@@ -448,7 +448,7 @@ class Christoffel:
 
         grad_group = np.empty((3, 3, 3))
         enhance = np.empty(3)
-        for n in xrange(3):
+        for n in range(3):
             grad_group[n] = hessian[n] / group_abs[n]
             grad_group[n] -= np.outer(group_vel[n], np.dot(hessian[n], group_vel[n])) / (group_abs[n]**3)
             grad_group[n] /= 2.0*phase_vel[n] #grad lambda = 2 * v_p * v_g
@@ -475,7 +475,7 @@ class Christoffel:
         center_phi = self.phi
         phase_center = self.direction
 
-        for i in xrange(num_steps):
+        for i in range(num_steps):
             angle = i*2.0*np.pi/num_steps
             self.set_direction_spherical(center_theta + np.sin(angle)*delta, center_phi + np.cos(angle)*delta)
             phase_grid[i] = self.direction
@@ -490,9 +490,9 @@ class Christoffel:
         phase_area = 0.0
         group_area = np.zeros(3)
         tot_angle = np.zeros(3)
-        for i in xrange(num_steps):
+        for i in range(num_steps):
             phase_area += norm(np.cross(phase_grid[i] - phase_center, phase_grid[i+1] - phase_center))
-            for n in xrange(3):
+            for n in range(3):
                 group_area[n] += norm(np.cross(group_grid[i][n] - group_center[n], group_grid[i+1][n] - group_center[n]))
         self._enhancement = phase_area/group_area
 
@@ -578,10 +578,10 @@ def hessian_christoffelmat(C):
     hessianmat[i][j][k][l] = d^2 M_kl / dx_i dx_j (note the indices).
     """
     hessianmat = np.empty((3, 3, 3, 3))
-    for i in xrange(3):
-        for j in xrange(3):
-            for k in xrange(3):
-                for l in xrange(3):
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                for l in range(3):
                     hessianmat[i][j][k][l] = C[k][i][j][l] + C[k][j][i][l]
     return hessianmat
 
@@ -646,7 +646,7 @@ def invert_file(filename, theta_column=None, phi_column=None, cart_columns=[]):
     infile.close()
 
     outfile = open(filename, 'a')
-    for linenumber in xrange(len(data)-1, -1, -1):
+    for linenumber in range(len(data)-1, -1, -1):
         line = data[linenumber]
         if line[0] == '#':
             continue
